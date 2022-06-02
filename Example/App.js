@@ -7,7 +7,7 @@
  */
 
 import React, { useEffect } from 'react';
-import { Platform, StyleSheet, Text, View, PermissionsAndroid } from 'react-native';
+import { Platform, StyleSheet, Text, View, PermissionsAndroid, NativePermissionsAndroid } from 'react-native';
 
 import CallLogs from 'react-native-call-log';
 
@@ -16,7 +16,7 @@ const filter = {
   phoneNumbers: '+11234567890',
   minTimestamp: 1571835032,
   maxTimestamp: 1583318721264,
-  types: 'MISSED',
+  types: 'VOICEMAIL',
 }
 
 const instructions = Platform.select({
@@ -42,12 +42,17 @@ export function App() {
             buttonPositive: 'OK',
           }
         )
-        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-
-          CallLogs.load(-1, filter).then(c => console.log(c));
-        } else {
+        if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
           console.log('Call Log permission denied');
+          return;
         }
+        // const granted2 = await NativePermissionsAndroid.requestPermission('com.android.voicemail.permission.READ_VOICEMAIL');
+        // if (granted2 !== PermissionsAndroid.RESULTS.GRANTED) {
+        //   console.log('Voicemail permission denied');
+        //   return;
+        // }
+
+        CallLogs.load(-1, filter).then(c => console.log(c));
       }
       catch (e) {
         console.log(e);

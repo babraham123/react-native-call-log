@@ -82,6 +82,8 @@ public class CallLogModule extends ReactContextBaseJavaModule {
             final int DATE_COLUMN_INDEX = cursor.getColumnIndex(Calls.DATE);
             final int DURATION_COLUMN_INDEX = cursor.getColumnIndex(Calls.DURATION);
             final int NAME_COLUMN_INDEX = cursor.getColumnIndex(Calls.CACHED_NAME);
+            final int TRANSCRIPTION_INDEX = cursor.getColumnIndex(Calls.TRANSCRIPTION);
+            final int VOICEMAIL_URI_INDEX = cursor.getColumnIndex(Calls.VOICEMAIL_URI);
 
             boolean minTimestampDefined = minTimestamp != null && !minTimestamp.equals("0");
             boolean minTimestampReached = false;
@@ -98,7 +100,11 @@ public class CallLogModule extends ReactContextBaseJavaModule {
                 //DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
                 String dateTime = df.format(new Date(Long.valueOf(timestampStr)));
 
-                String type = this.resolveCallType(cursor.getInt(TYPE_COLUMN_INDEX));
+                int rawType = cursor.getInt(TYPE_COLUMN_INDEX);
+                String type = this.resolveCallType(rawType);
+
+                String transcription = cursor.getString(TRANSCRIPTION_INDEX);
+                String voicemailUri = rawType == Calls.VOICEMAIL_TYPE ? cursor.getString(VOICEMAIL_URI_INDEX) : "";
 
                 boolean passesPhoneFilter = phoneNumberSet == null || phoneNumberSet.isEmpty() || phoneNumberSet.contains(phoneNumber);
                 boolean passesTypeFilter = typeSet == null || typeSet.isEmpty() || typeSet.contains(type);
@@ -114,7 +120,13 @@ public class CallLogModule extends ReactContextBaseJavaModule {
                     callLog.putString("timestamp", timestampStr);
                     callLog.putString("dateTime", dateTime);
                     callLog.putString("type", type);
-                    callLog.putInt("rawType", cursor.getInt(TYPE_COLUMN_INDEX));
+                    callLog.putInt("rawType", rawType);
+                    if (!transcription.isEmpty()) {
+                        callLog.putString("transcription", transcription);
+                    }
+                    if (!voicemailUri.isEmpty()) {
+                        callLog.putString("voicemailUri", voicemailUri);
+                    }
                     result.pushMap(callLog);
                     callLogCount++;
                 }

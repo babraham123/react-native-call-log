@@ -25,6 +25,8 @@ declare namespace CallLogs {
     dateTime: string;
     type: CallType;
     rawType: number;
+    transcription?: string;
+    voicemailUri?: string;
   }
 
   const load: (limit: number, filter?: CallFilter) => Promise<CallLog[]>;
